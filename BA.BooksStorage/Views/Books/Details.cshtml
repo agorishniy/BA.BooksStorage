@@ -1,0 +1,78 @@
+﻿@model BA.BooksStorage.Model.Model.Book
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Book</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            Author
+        </dt>
+
+        <dd>
+            @Model.Author.FirstName @Model.Author.LastName
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Isbn)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Isbn)
+        </dd>
+    </dl>
+    <div id="MyChart"></div>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+
+@section Scripts{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart', 'line'] });
+        google.charts.setOnLoadCallback(drawBackgroundColor);
+
+        function drawBackgroundColor() {
+            var dataJson = '@Html.Raw(ViewBag.GoogleChartData)';
+            var data = new google.visualization.DataTable(dataJson);
+
+            var options = {
+                hAxis: {
+                    title: 'Time'
+                },
+                vAxis: {
+                    title: 'Popularity'
+                },
+                backgroundColor: '#f1f8e9',
+                colors: ['#a52714', '#097138'],
+                series: {
+                    0: { lineDashStyle: null },
+                    1: { lineDashStyle: [2, 4] }
+                },
+                lineWidth: 2
+        };
+
+            var chartBlock = document.getElementById('MyChart');
+            var chart = new google.visualization.LineChart(chartBlock);
+            chart.draw(data, options);
+
+        }
+    </script>
+}

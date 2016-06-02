@@ -1,0 +1,129 @@
+﻿@model IEnumerable<BA.BooksStorage.Model.Model.Book>
+
+@{
+    ViewBag.Title = "Books";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Books</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Author")
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Isbn)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @(item.Author.LastName + " " + item.Author.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Isbn)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id }) |
+                <a href="javascript:drawBackgroundColor(@item.Id)">Chart</a>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div>
+    @Html.ActionLink("Back to main menu", "Index", "Main")
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Chart</h4>
+            </div>
+            <div id="MyChart">
+                @*<div id="MyChart" style="display: block"></div>*@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart', 'line'] });
+        google.charts.setOnLoadCallback(drawBackgroundColor);
+
+        function drawBackgroundColor(id) {
+            var options = {
+                hAxis: {
+                    title: 'Time'
+                },
+                vAxis: {
+                    title: 'Popularity'
+                },
+                width: 898,
+                backgroundColor: '#f1f8e9',
+                colors: ['#a52714', '#097138'],
+                series: {
+                    0: { lineDashStyle: null },
+                    1: { lineDashStyle: [2, 4] }
+                },
+                lineWidth: 2
+            };
+            var chartBlock = document.getElementById('MyChart');
+            var chart = new google.visualization.LineChart(chartBlock);
+            if (typeof(id) === "undefined") {
+                var gData = new google.visualization.DataTable([]);
+                chart.draw(gData, options);
+            } else {
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/charts/hits/' + id,
+                    content: 'application/json',
+                    beforeSend: function() {
+                        $.blockUI({
+                            message: "Loading data"
+                        });
+                    },
+                    success: function(data) {
+                        $('#myModal').modal('show');
+                        
+                        var gData = new google.visualization.DataTable(data);
+                        chart.draw(gData, options);
+                    },
+                    complete: function() {
+                        $.unblockUI();
+                    }
+                });
+            }
+        }
+
+    </script>
+}

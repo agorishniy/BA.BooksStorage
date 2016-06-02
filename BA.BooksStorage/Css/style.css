@@ -1,0 +1,9 @@
+﻿html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+a.chart-btn {
+    color: #bd4e4e;
+    font-size: 150%;
+}
